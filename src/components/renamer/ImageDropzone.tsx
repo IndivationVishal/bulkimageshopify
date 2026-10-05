@@ -12,7 +12,7 @@ export function ImageDropzone({ onReport, compact }: { onReport: (n: Notice) => 
     <Dropzone
       compact={compact}
       title={compact ? "Add more images" : "Drop product images here"}
-      description={compact ? undefined : "or click to browse · JPG, PNG, WEBP, GIF, AVIF · folders work too"}
+      description={compact ? undefined : "or click to browse · JPG, PNG, WEBP, GIF, AVIF · drop a folder of product folders to add many products at once"}
       accept={IMAGE_ACCEPT_ATTR}
       onFiles={onFiles}
       onDrop={onDrop}

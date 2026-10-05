@@ -57,6 +57,14 @@ export function CsvGeneratorView() {
       />
       <Steps steps={STEPS} current={step} />
 
+      <Alert tone="info" title="Products Shopify me pehle se bane hain?" className="mb-5">
+        Sirf images lagani hain to{" "}
+        <Link href="/existing-products" className="font-medium underline">
+          Existing Products
+        </Link>{" "}
+        use karo. Shopify export CSV + renamed images se images-only CSV banti hai, title/description safe rehte hain.
+      </Alert>
+
       <div className="flex flex-col gap-5">
         <Card>
           <CardHeader

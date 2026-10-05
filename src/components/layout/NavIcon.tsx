@@ -1,4 +1,4 @@
-import { FileSpreadsheet, FolderTree, Images, LayoutDashboard, Settings } from "lucide-react";
+import { FileSpreadsheet, FolderTree, ImagePlus, Images, LayoutDashboard, Settings } from "lucide-react";
 import type { NavItem } from "@/lib/constants/app";
 
 const icons = {
@@ -6,6 +6,7 @@ const icons = {
   renamer: Images,
   products: FolderTree,
   csv: FileSpreadsheet,
+  existing: ImagePlus,
   settings: Settings,
 } satisfies Record<NavItem["icon"], unknown>;
 

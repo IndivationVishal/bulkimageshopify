@@ -2,21 +2,24 @@
 
 import { useShallow } from "zustand/react/shallow";
 import { Field, Input } from "@/components/ui/Input";
-import { useRenamerStore } from "@/store/renamer-store";
+import { selectActive, useRenamerStore } from "@/store/renamer-store";
 import { useSettingsStore } from "@/store/settings-store";
 import { generateImageName } from "@/lib/image/image-naming";
 
 export function ProductForm({ handleError }: { handleError: string | null }) {
   const { productName, handle, startNumber, setProductName, setHandle, setStartNumber, fileCount } = useRenamerStore(
-    useShallow((s) => ({
-      productName: s.productName,
-      handle: s.handle,
-      startNumber: s.startNumber,
-      setProductName: s.setProductName,
-      setHandle: s.setHandle,
-      setStartNumber: s.setStartNumber,
-      fileCount: s.files.length,
-    })),
+    useShallow((s) => {
+      const p = selectActive(s);
+      return {
+        productName: p.productName,
+        handle: p.handle,
+        startNumber: p.startNumber,
+        setProductName: s.setProductName,
+        setHandle: s.setHandle,
+        setStartNumber: s.setStartNumber,
+        fileCount: p.files.length,
+      };
+    }),
   );
   const separator = useSettingsStore((s) => s.nameSeparator);
   const example = generateImageName(handle.replace(/^-+|-+$/g, "") || "red-ring", startNumber, "webp", { separator });

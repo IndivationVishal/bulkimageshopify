@@ -3,7 +3,7 @@
 import { LayoutGrid, List, Trash2 } from "lucide-react";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
-import { useRenamerStore } from "@/store/renamer-store";
+import { selectActive, useRenamerStore } from "@/store/renamer-store";
 import { formatBytes, pluralize } from "@/lib/utils/format-utils";
 import { cn } from "@/lib/utils/cn";
 import type { SortMode } from "@/types/image";
@@ -25,8 +25,8 @@ export function RenameToolbar({
   onView: (v: ViewMode) => void;
   onClear: () => void;
 }) {
-  const files = useRenamerStore((s) => s.files);
-  const sortMode = useRenamerStore((s) => s.sortMode);
+  const files = useRenamerStore((s) => selectActive(s).files);
+  const sortMode = useRenamerStore((s) => selectActive(s).sortMode);
   const setSortMode = useRenamerStore((s) => s.setSortMode);
   const total = files.reduce((n, f) => n + f.size, 0);
 
@@ -62,7 +62,7 @@ export function RenameToolbar({
           ))}
         </div>
         <Button variant="danger" size="sm" onClick={onClear}>
-          <Trash2 className="size-3.5" /> Clear all
+          <Trash2 className="size-3.5" /> Clear product
         </Button>
       </div>
     </div>

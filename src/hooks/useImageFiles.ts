@@ -2,7 +2,8 @@
 
 import { useCallback, type DragEvent } from "react";
 import { useRenamerStore, type AddFilesReport } from "@/store/renamer-store";
-import { filesFromDataTransfer } from "@/lib/products/folder-reader";
+import { filesFromDataTransfer, type PathedFile } from "@/lib/products/folder-reader";
+import { naturalCompare } from "@/lib/utils/file-utils";
 import { pluralize } from "@/lib/utils/format-utils";
 import type { Notice } from "./useNotice";
 
@@ -21,9 +22,32 @@ export function describeAddReport(r: AddFilesReport): Notice {
   return { tone, title: `${pluralize(r.added, "image")} added`, body: parts.join(". ") || undefined };
 }
 
-/** Handlers for the renamer dropzone (files or folders). */
+/**
+ * Group dropped files by the folder that directly contains them.
+ * Returns null when everything sits in one folder (or no folder at all).
+ */
+export function groupByFolder(items: PathedFile[]): { name: string; files: File[] }[] | null {
+  const groups = new Map<string, { name: string; files: File[] }>();
+  for (const { file, path } of items) {
+    const parent = path.split("/").filter(Boolean).slice(0, -1);
+    const key = parent.join("/");
+    const group = groups.get(key) ?? { name: parent.at(-1) ?? "", files: [] };
+    group.files.push(file);
+    groups.set(key, group);
+  }
+  if (groups.size < 2) return null;
+  return [...groups.values()]
+    .map((g) => ({ ...g, files: [...g.files].sort((a, b) => naturalCompare(a.name, b.name)) }))
+    .sort((a, b) => naturalCompare(a.name, b.name));
+}
+
+/**
+ * Handlers for the renamer dropzone. Loose files / one folder go into the
+ * active product; a folder of product folders becomes one product per folder.
+ */
 export function useImageFiles(onReport: (n: Notice) => void) {
   const addFiles = useRenamerStore((s) => s.addFiles);
+  const addProductsFromFolders = useRenamerStore((s) => s.addProductsFromFolders);
 
   const onFiles = useCallback((list: FileList | File[]) => onReport(describeAddReport(addFiles(Array.from(list)))), [
     addFiles,
@@ -33,10 +57,16 @@ export function useImageFiles(onReport: (n: Notice) => void) {
   const onDrop = useCallback(
     (e: DragEvent) => {
       filesFromDataTransfer(e.dataTransfer)
-        .then((items) => onFiles(items.map((i) => i.file)))
+        .then((items) => {
+          const groups = groupByFolder(items);
+          if (!groups) return onFiles(items.map((i) => i.file));
+          const r = addProductsFromFolders(groups);
+          const notice = describeAddReport(r);
+          onReport({ ...notice, title: `${pluralize(r.products, "product")} with ${notice.title}` });
+        })
         .catch(() => onReport({ tone: "danger", title: "Could not read the dropped files." }));
     },
-    [onFiles, onReport],
+    [onFiles, onReport, addProductsFromFolders],
   );
 
   return { onFiles, onDrop };

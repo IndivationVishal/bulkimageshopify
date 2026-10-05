@@ -54,7 +54,7 @@ function ToolCard({
 
 export function DashboardView() {
   const products = useProductStore((s) => s.products);
-  const renamerFiles = useRenamerStore((s) => s.files.length);
+  const renamerFiles = useRenamerStore((s) => s.products.reduce((n, p) => n + p.files.length, 0));
   const productImages = products.reduce((n, p) => n + p.images.length, 0);
   const mapped = products.reduce((n, p) => n + p.images.filter((i) => i.src).length, 0);
 

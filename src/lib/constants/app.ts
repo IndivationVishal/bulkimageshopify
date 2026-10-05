@@ -1,14 +1,20 @@
 export const APP_NAME = "Shopify Bulk Studio";
 export const APP_TAGLINE = "Create Shopify-ready product files without APIs or complicated setup.";
 
-export type NavItem = { href: string; label: string; icon: "dashboard" | "renamer" | "products" | "csv" | "settings" };
+export type NavItem = { href: string; label: string; icon: "dashboard" | "renamer" | "products" | "csv" | "existing" | "settings" };
 export type NavSection = { title?: string; items: NavItem[] };
 
 export const NAV_SECTIONS: NavSection[] = [
   { items: [{ href: "/", label: "Dashboard", icon: "dashboard" }] },
   { title: "Image tools", items: [{ href: "/renamer", label: "Bulk Renamer", icon: "renamer" }] },
   { title: "Products", items: [{ href: "/products", label: "Product Builder", icon: "products" }] },
-  { title: "Shopify", items: [{ href: "/csv", label: "CSV Generator", icon: "csv" }] },
+  {
+    title: "Shopify",
+    items: [
+      { href: "/csv", label: "CSV Generator", icon: "csv" },
+      { href: "/existing-products", label: "Existing Products", icon: "existing" },
+    ],
+  },
 ];
 
 export const SETTINGS_NAV: NavItem = { href: "/settings", label: "Settings", icon: "settings" };
