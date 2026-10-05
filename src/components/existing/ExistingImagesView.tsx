@@ -78,28 +78,28 @@ export function ExistingImagesView() {
     if (!file) return;
     const r = parseShopifyExport(await file.text());
     if (r.error) {
-      setNotice({ tone: "danger", title: "CSV nahi padh paye", body: r.error });
+      setNotice({ tone: "danger", title: "Could not read the CSV", body: r.error });
       return;
     }
     setExisting(r.products);
     setTable(r.table);
     setCsvName(file.name);
-    setNotice({ tone: "success", title: `${pluralize(r.products.length, "product")} CSV se mile` });
+    setNotice({ tone: "success", title: `${pluralize(r.products.length, "product")} found in the CSV` });
   };
 
   const addNames = (names: string[]) => {
     if (!names.length) {
-      setNotice({ tone: "warning", title: "Koi image nahi mili", body: "Renamed images ki ZIP, images ya folder daalo." });
+      setNotice({ tone: "warning", title: "No images found", body: "Add the ZIP of renamed images, the images, or a folder." });
       return;
     }
     setImageNames((prev) => [...new Set([...prev, ...names])]);
-    setNotice({ tone: "success", title: `${pluralize(names.length, "image")} ke naam mile` });
+    setNotice({ tone: "success", title: `${pluralize(names.length, "image")} found` });
   };
 
   const loadImages = (files: { file: File; path: string }[]) =>
     namesFromFiles(files)
       .then(addNames)
-      .catch(() => setNotice({ tone: "danger", title: "ZIP ya images padh nahi paye." }));
+      .catch(() => setNotice({ tone: "danger", title: "Could not read the ZIP or images." }));
 
   const fromRenamer = () =>
     addNames(
@@ -127,7 +127,7 @@ export function ExistingImagesView() {
     <>
       <PageHeader
         title="Add Images to Existing Products"
-        description="Shopify me pehle se bane products me images lagao. Shopify ka export CSV + renamed images (pink1.jpg, pink2.jpg…) + ek CDN link do. Aapki hi CSV images ke saath wapas milegi, baaki sab waisa hi rahega."
+        description="Add images to products that already exist in Shopify. Provide your Shopify export CSV, the renamed images (pink1.jpg, pink2.jpg…) and one CDN link. You get your own CSV back with the images filled in; everything else stays the same."
       />
       <Steps steps={STEPS} current={step} />
 
@@ -142,7 +142,7 @@ export function ExistingImagesView() {
           <Card>
             <CardHeader
               title="1. Shopify product CSV"
-              description="Shopify admin → Products → Export se mili CSV. Isse har product ka asli handle milta hai."
+              description="The CSV from Shopify admin → Products → Export. It gives the real handle of every product."
             />
             <CardBody className="flex flex-col gap-3">
               <Dropzone
@@ -150,8 +150,8 @@ export function ExistingImagesView() {
                 multiple={false}
                 accept=".csv,text/csv"
                 icon={<FileSpreadsheet className={csvName ? "size-4" : "size-6"} />}
-                title={csvName ? "Doosri CSV daalo" : "Shopify export CSV yahan daalo"}
-                description={csvName ? undefined : "ya click karke choose karo"}
+                title={csvName ? "Use a different CSV" : "Drop your Shopify export CSV here"}
+                description={csvName ? undefined : "or click to choose a file"}
                 onFiles={loadCsv}
                 onDrop={(e: DragEvent) => loadCsv(e.dataTransfer.files)}
               />
@@ -166,33 +166,33 @@ export function ExistingImagesView() {
           <Card>
             <CardHeader
               title="2. Renamed images"
-              description="Wahi ZIP / images jo aapne Shopify → Content → Files me upload ki. Sirf file ke naam padhe jaate hain."
+              description="The same ZIP / images you uploaded to Shopify → Content → Files. Only the file names are read."
             />
             <CardBody className="flex flex-col gap-3">
               <Dropzone
                 compact={imageNames.length > 0}
                 accept=".zip,application/zip,image/*"
                 icon={<FolderArchive className={imageNames.length ? "size-4" : "size-6"} />}
-                title={imageNames.length ? "Aur ZIP / images daalo" : "ZIP, images ya folder yahan daalo"}
-                description={imageNames.length ? undefined : "jaise pink1.jpg, pink2.jpg, blue1.png"}
+                title={imageNames.length ? "Add more ZIPs / images" : "Drop a ZIP, images or a folder here"}
+                description={imageNames.length ? undefined : "e.g. pink1.jpg, pink2.jpg, blue1.png"}
                 onFiles={(list) => loadImages(Array.from(list).map((file) => ({ file, path: file.name })))}
                 onDrop={(e: DragEvent) => {
                   filesFromDataTransfer(e.dataTransfer)
                     .then(loadImages)
-                    .catch(() => setNotice({ tone: "danger", title: "Files padh nahi paye." }));
+                    .catch(() => setNotice({ tone: "danger", title: "Could not read the files." }));
                 }}
               />
               <div className="flex flex-wrap items-center gap-2">
                 {renamerCount > 0 && (
                   <Button variant="secondary" size="sm" onClick={fromRenamer}>
-                    <Images className="size-3.5" /> Bulk Renamer se lo ({pluralize(renamerCount, "image")})
+                    <Images className="size-3.5" /> Use images from Bulk Renamer ({pluralize(renamerCount, "image")})
                   </Button>
                 )}
                 {imageNames.length > 0 && (
                   <>
                     <span className="text-sm text-muted">{pluralize(imageNames.length, "image")} loaded</span>
                     <Button variant="ghost" size="sm" onClick={() => setImageNames([])}>
-                      Hatao
+                      Clear
                     </Button>
                   </>
                 )}
@@ -203,8 +203,8 @@ export function ExistingImagesView() {
 
         <Card>
           <CardHeader
-            title="3. Ek CDN link"
-            description="Shopify Files me se kisi bhi ek uploaded image ka link copy karke daalo. Baaki links file naam se ban jayenge."
+            title="3. One CDN link"
+            description="Copy the link of any one image uploaded to Shopify Files. The other links are built from the file names."
           />
           <CardBody className="flex flex-col gap-2">
             <Input
@@ -217,7 +217,7 @@ export function ExistingImagesView() {
               onChange={(e) => setLink(e.target.value)}
             />
             {link.trim() !== "" && !base && (
-              <p className="text-xs text-danger">Ye valid link nahi hai. https:// se shuru hone wala link daalo.</p>
+              <p className="text-xs text-danger">This is not a valid link. Paste a link that starts with https://.</p>
             )}
             {base && (
               <p className="text-xs text-muted">
@@ -230,25 +230,25 @@ export function ExistingImagesView() {
         {existing.length > 0 && imageNames.length > 0 && (
           <Card>
             <CardHeader
-              title="4. Check karo"
-              description="Har product ki images. Link pe click karke dekh lo ki image khul rahi hai."
+              title="4. Review"
+              description="Images per product. Click a link to check that the image opens."
               action={
                 <div className="flex flex-wrap gap-1.5">
                   <Badge tone="success">{pluralize(withImages.length, "product")} matched</Badge>
                   <Badge tone="success">{pluralize(matchedCount, "image")}</Badge>
-                  {withoutImages.length > 0 && <Badge tone="warning">{withoutImages.length} bina image</Badge>}
+                  {withoutImages.length > 0 && <Badge tone="warning">{withoutImages.length} without images</Badge>}
                   {match.unmatched.length > 0 && <Badge tone="danger">{match.unmatched.length} unmatched</Badge>}
                 </div>
               }
             />
             <CardBody className="flex flex-col gap-4">
               {alreadyHaveImages.length > 0 && (
-                <Alert tone="warning" title={`${pluralize(alreadyHaveImages.length, "product")} me pehle se images hain`}>
+                <Alert tone="warning" title={`${pluralize(alreadyHaveImages.length, "product")} already have images`}>
                   {alreadyHaveImages
                     .slice(0, 5)
                     .map((p) => p.handle)
                     .join(", ")}
-                  {alreadyHaveImages.length > 5 ? "…" : ""}. Neeche choose karo ki purani images rakhni hain ya hatani hain.
+                  {alreadyHaveImages.length > 5 ? "…" : ""}. Choose below whether to keep or remove the existing images.
                 </Alert>
               )}
 
@@ -267,7 +267,7 @@ export function ExistingImagesView() {
                           <p className="truncate text-xs text-muted">
                             {p.title}
                             {p.images.some((i) => i.matchedBy === "title") && (
-                              <span className="ml-1 text-warning">· title se match hua</span>
+                              <span className="ml-1 text-warning">· matched by title</span>
                             )}
                           </p>
                         </div>
@@ -291,7 +291,7 @@ export function ExistingImagesView() {
               {match.unmatched.length > 0 && (
                 <div>
                   <p className="mb-1.5 text-sm font-medium text-danger">
-                    {pluralize(match.unmatched.length, "image")} kisi product se match nahi hui (CSV me nahi jayengi)
+                    {pluralize(match.unmatched.length, "image")} did not match any product (not included in the CSV)
                   </p>
                   <ul className="max-h-48 divide-y divide-border overflow-y-auto rounded-lg border border-border text-xs">
                     {match.unmatched.map((u) => (
@@ -307,7 +307,7 @@ export function ExistingImagesView() {
               {withoutImages.length > 0 && (
                 <details className="text-sm">
                   <summary className="cursor-pointer text-muted">
-                    {pluralize(withoutImages.length, "product")} ko koi image nahi mili
+                    {pluralize(withoutImages.length, "product")} have no images
                   </summary>
                   <p className="mt-2 font-mono text-xs leading-relaxed text-subtle">
                     {withoutImages.map((p) => p.handle).join(", ")}
@@ -323,8 +323,8 @@ export function ExistingImagesView() {
           <CardBody className="flex flex-col gap-3">
             <Switch
               id="replace-existing"
-              label="Purani images hatao"
-              description="Off: product ki pehle wali images rehengi aur nayi images unke baad lagengi. On: sirf nayi images rahengi."
+              label="Remove existing images"
+              description="Off: existing images are kept and the new images are added after them. On: only the new images are kept."
               checked={replaceExisting}
               onChange={setReplaceExisting}
             />
@@ -339,17 +339,17 @@ export function ExistingImagesView() {
             {!ready && (
               <p className="text-xs text-subtle">
                 {!existing.length
-                  ? "Pehle Shopify CSV daalo."
+                  ? "Add your Shopify CSV first."
                   : !matchedCount
-                    ? "Images daalo jinke naam CSV ke handles se match karein."
-                    : "CDN link daalo."}
+                    ? "Add images whose names match the handles in the CSV."
+                    : "Paste a CDN link."}
               </p>
             )}
             <p className="text-xs text-muted">
-              Ye aapki hi export CSV hai: sirf images wale products, har column aur variant waisa hi, bas{" "}
-              <span className="font-mono">Image Src, Image Position, Image Alt Text</span> bhare hue. Shopify admin →
-              Products → Import me ise daalo aur{" "}
-              <span className="font-medium text-text">“Overwrite products with matching handles”</span> tick karo.
+              This is your own export CSV, limited to the products that received images. Every column and variant is unchanged; only{" "}
+              <span className="font-mono">Image Src, Image Position, Image Alt Text</span> are filled in. Import it in Shopify
+              admin → Products → Import and tick{" "}
+              <span className="font-medium text-text">“Overwrite products with matching handles”</span>.
             </p>
           </CardBody>
         </Card>

@@ -28,7 +28,7 @@ export function parseShopifyExport(text: string): ExistingCsvResult {
   });
   const fields = parsed.meta.fields ?? [];
   if (!fields.includes("Handle")) {
-    return { products: [], table: { fields, rows: [] }, error: "Is CSV me “Handle” column nahi hai. Shopify → Products → Export wali CSV daalo." };
+    return { products: [], table: { fields, rows: [] }, error: "This CSV has no “Handle” column. Use the file from Shopify admin → Products → Export." };
   }
 
   const byHandle = new Map<string, ExistingProduct>();
@@ -44,7 +44,7 @@ export function parseShopifyExport(text: string): ExistingCsvResult {
   return {
     products,
     table: { fields, rows: parsed.data },
-    error: products.length ? null : "CSV me koi product nahi mila.",
+    error: products.length ? null : "No products found in this CSV.",
   };
 }
 
@@ -82,18 +82,18 @@ export function matchImagesToProducts(
   for (const fileName of unique) {
     const { handle, position } = splitHandleAndNumber(stripExtension(fileName), handles, separator);
     if (position === 0) {
-      unmatched.push({ fileName, reason: "Naam me image number nahi hai (jaise pink1.jpg)" });
+      unmatched.push({ fileName, reason: "No image number in the name (e.g. pink1.jpg)" });
       continue;
     }
     const viaTitle = byHandle.has(handle) ? undefined : byTitle.get(handle);
     const product = byHandle.get(viaTitle ?? handle);
     if (!product) {
-      unmatched.push({ fileName, reason: `CSV me “${handle}” handle wala product nahi hai` });
+      unmatched.push({ fileName, reason: `No product with handle “${handle}” in the CSV` });
       continue;
     }
     const clash = product.images.find((i) => i.number === position);
     if (clash) {
-      unmatched.push({ fileName, reason: `${clash.fileName} ka number bhi ${position} hai` });
+      unmatched.push({ fileName, reason: `Same number (${position}) as ${clash.fileName}` });
       continue;
     }
     product.images.push({ fileName, number: position, matchedBy: viaTitle ? "title" : "handle" });

@@ -35,7 +35,7 @@ export function CdnBaseInput({ value, onChange, imageCount, result, onApply }: P
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
-      {invalid && <p className="text-xs text-danger">Ye valid link nahi hai. https:// se shuru hone wala link daalo.</p>}
+      {invalid && <p className="text-xs text-danger">This is not a valid link. Paste a link that starts with https://.</p>}
       {base && (
         <p className="text-xs text-muted">
           Store folder: <span className="font-mono text-text">{base}</span>
@@ -43,8 +43,8 @@ export function CdnBaseInput({ value, onChange, imageCount, result, onApply }: P
       )}
       <Switch
         id="base-overwrite"
-        label="Pehle se mapped links bhi badlo"
-        description="Off: sirf jin images ka link nahi hai unke liye banega."
+        label="Also replace links that are already mapped"
+        description="Off: links are only created for images that don't have one yet."
         checked={overwrite}
         onChange={setOverwrite}
       />
@@ -53,7 +53,7 @@ export function CdnBaseInput({ value, onChange, imageCount, result, onApply }: P
           <Wand2 className="size-4" /> Generate links for all {imageCount > 0 ? pluralize(imageCount, "image") : "images"}
         </Button>
         {imageCount === 0 && (
-          <p className="mt-2 text-xs text-subtle">Pehle Product Builder ya Bulk Renamer se images add karo.</p>
+          <p className="mt-2 text-xs text-subtle">Add images in the Product Builder or Bulk Renamer first.</p>
         )}
       </div>
       {result && (
@@ -61,11 +61,11 @@ export function CdnBaseInput({ value, onChange, imageCount, result, onApply }: P
           tone={result.applied ? "success" : "warning"}
           title={`${pluralize(result.applied, "link")} generated`}
         >
-          {result.kept > 0 && <p>{pluralize(result.kept, "image")} ka link pehle se tha, wo waise hi rakha.</p>}
-          {result.skipped > 0 && <p>{pluralize(result.skipped, "image")} ka file naam nahi mila, skip hui.</p>}
+          {result.kept > 0 && <p>{pluralize(result.kept, "image")} already had a link and were left unchanged.</p>}
+          {result.skipped > 0 && <p>{pluralize(result.skipped, "image")} skipped because they have no file name.</p>}
           {result.sample && (
             <p>
-              Check karo, ye khulke image dikhaye:{" "}
+              Open this to check that it shows the image:{" "}
               <a href={result.sample} target="_blank" rel="noreferrer" className="font-mono underline break-all">
                 {result.sample}
               </a>

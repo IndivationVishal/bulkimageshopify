@@ -57,19 +57,19 @@ export function CsvGeneratorView() {
       />
       <Steps steps={STEPS} current={step} />
 
-      <Alert tone="info" title="Products Shopify me pehle se bane hain?" className="mb-5">
-        Sirf images lagani hain to{" "}
+      <Alert tone="info" title="Products already exist in Shopify?" className="mb-5">
+        To only add images to them, use{" "}
         <Link href="/existing-products" className="font-medium underline">
           Existing Products
-        </Link>{" "}
-        use karo. Shopify export CSV + renamed images se images-only CSV banti hai, title/description safe rehte hain.
+        </Link>
+        . Your Shopify export CSV is returned with the image links filled in, and titles and descriptions stay unchanged.
       </Alert>
 
       <div className="flex flex-col gap-5">
         <Card>
           <CardHeader
-            title="Quick way: sirf ek link paste karo"
-            description="Shopify Files me se koi bhi ek uploaded image ka link daalo. Baaki sabhi images ke links file naam se khud ban jayenge."
+            title="Quick way: paste just one link"
+            description="Paste the link of any one image uploaded to Shopify Files. Links for all other images are built from their file names."
           />
           <CardBody>
             <CdnBaseInput
@@ -85,8 +85,8 @@ export function CsvGeneratorView() {
         <div className="grid gap-5 lg:grid-cols-2">
           <Card>
             <CardHeader
-              title="Ya: sabhi links khud paste karo"
-              description="Agar aapke paas har image ka link hai. Ek line me ek link."
+              title="Or: paste every link yourself"
+              description="If you have a link for every image. One link per line."
             />
             <CardBody>
               <CdnUrlInput
